@@ -46,7 +46,7 @@
 
   width: 500px;
   background: white;
-  padding: 2em;
+   padding: 2em;
   border-radius: .5em;
   text-align: center;
   z-index: 2;
@@ -61,7 +61,7 @@
   overflow: auto;
   display: flex;
   justify-content: center;
-  flex-direction: column;
+  flex-direction: column; */
 }
 
 .modal-content {
