@@ -1,29 +1,86 @@
 // ............0
 
 (async function load() {
- async function getData(url) {
-    let response= await fetch(url)
-  let data = await response.json()
-  return data;
- }
- let $form=document.getElementById('form');
- $form.addEventListener('submit',(event)=>{
-    event.preventDefault();
- })
- let actionList=await getData('https://yts.lt/api/v2/list_movies.json?genre=action');
- let dramaList=await getData('https://yts.lt/api/v2/list_movies.json?genre=drama    ');
- let animationList=await getData('https://yts.lt/api/v2/list_movies.json?genre=animation');
- let $action=document.querySelector('#action');
- let $drama=document.getElementById('drama');
- let $animation=document.getElementById('animation');
+  async function getData(url) {
+    let response = await fetch(url)
+    let data = await response.json()
+    return data;
+  }
+  let $home = document.getElementById('home');
+  let $form = document.getElementById('form');
+  let $featuringContainer = document.getElementById('featuring');
+  // let $featuringContainer=document.getElementById('animation');
+  function setAttributes($element, attributes) {
+    for (const attribute in attributes) {
+      $element.setAttribute(attribute, attributes[attribute]);
+    }
+  }
 
- let HTMLString=``;
-let movieElement;
- function videoItemTemplate(movie) {
-  HTMLString=``;
-  for (i=0;i<movie.data.movies.length;i++){
-    // =videoItemTemplate(actionList.data.movies[0]);
-    HTMLString+=`
+const BASE_API='https://yts.lt/api/v2/';
+
+function featuringTemplate(peli) {
+      return (
+        `
+        <div class="featuring">
+          <div class="featuring-image">
+            <img src=" ${peli.medium_cover_image}" width="70" height="100" alt="">
+          </div>
+          <div class="featuring-content">
+            <p class="featuring-title">Pelicula encontrada</p>
+            <p class="featuring-album">${peli.title}</p>
+          </div>
+        </div>
+        `
+      )
+    }
+
+  $form.addEventListener('submit', async(event) => {
+    event.preventDefault();
+    home.classList.add('search-active')
+    let $loader = document.createElement('img');
+    setAttributes($loader, {
+      src: 'src/images/loader.gif',
+      height: 50,
+      whith: 50
+    })  
+    $featuringContainer.append($loader);
+    // let  data =new FormData($form); 
+    // let peli=await getData(`https://yts.lt/api/v2/list_movies.json?limit=1&query_term=${data.get('name')}`)
+    // let htmlString= featuringTemplate(peli.data.movies[0])
+    // $featuringContainer.innerHTML=htmlString 
+ //  debugger 
+ const data = new FormData($form);
+    try {
+      const {
+        data: {
+          movies: pelis
+        }
+      } = await getData(`${BASE_API}list_movies.json?limit=1&query_term=${data.get('name')}`)
+
+      const HTMLString = featuringTemplate(pelis[0]);
+      $featuringContainer.innerHTML = HTMLString;
+    } catch(error) {
+      alert(error.message);
+      $loader.remove();
+      $home.classList.remove('search-active');
+    } 
+  })
+
+
+  let actionList = await getData(`${BASE_API}list_movies.json?genre=action`);
+  let dramaList = await getData(`${BASE_API}list_movies.json?genre=drama`);
+  let animationList = await getData(`${BASE_API}list_movies.json?genre=animation`);
+  let $action = document.querySelector('#action');
+  let $drama = document.getElementById('drama');
+  let $animation = document.getElementById('animation');
+
+  let HTMLString = ``;
+  let movieElement;
+  function videoItemTemplate(movie) {
+    HTMLString = ``;
+    for (i = 0; i < movie.data.movies.length; i++) {
+      // =videoItemTemplate(actionList.data.movies[0]);
+      HTMLString += `
     <div class="">
       <div class="featuring-image">
         <img src="${movie.data.movies[i].medium_cover_image}" width="130" height="160" alt="">
@@ -34,75 +91,93 @@ let movieElement;
       </div>
     </div>
     `}
-  return (HTMLString)
+    return (HTMLString)
 
-}
-function addEventClick($element) {
-  $element.addEventListener('click',function(){
-    alert('click');
-  });
-  // $element.addEventListener('click',function(){
-  // alert('click');
-  // })
-}
-function createTemplate(HTMLString,container) {
-  container.children[0].remove();
-  // img=document.getElementById('img_').value;
-  // img.children[0].remuve(); 
-  let html= document.implementation.createHTMLDocument();
-  html.body.innerHTML=HTMLString;
-// debugger
+  }
+  function addEventClick($element) {
+    $element.addEventListener('click', function () {
+      showModal()
+      // alert('click');
+    });
+    // $element.addEventListener('click',function(){
+    // alert('click');
+    // })
+  }
+  function createTemplate(HTMLString, container) {
+    container.children[0].remove();
+    // img=document.getElementById('img_').value;
+    // img.children[0].remuve(); 
+    let html = document.implementation.createHTMLDocument();
+    html.body.innerHTML = HTMLString;
+    // debugger
 
-for(i=0;i<html.body.children.length;i++){
-  movieElement=html.body.children[0];
-  container.append(movieElement);
-  addEventClick(movieElement);
-  // $action.append(html.body.children[1]);
-  // $action.append(html.body.children[2]);
-  // $action.append(html.body.children[3]);
+    for (i = 0; i < html.body.children.length; i++) {
+      movieElement = html.body.children[0];
+      container.append(movieElement);
+      addEventClick(movieElement);
+      // $action.append(html.body.children[1]);
+      // $action.append(html.body.children[2]);
+      // $action.append(html.body.children[3]);
 
-}
-}
+    }
+  }
 
 
-function renderizar(lista,tipo) {
-  
-  videoItemTemplate(lista)
-  createTemplate(HTMLString,tipo);
-  
-}
-renderizar(actionList,$action)
-renderizar(dramaList,$drama)
-renderizar(animationList,$animation)
-// debugger;
-//   console.log(data)  // await
-// let $modal=document.getElementById('modal');
-// let $overlay=document.getElementById('overlay');
-// // let $hideModal=Document.getElementById('hide-modal');
-// let $animationContainer=document.getElementById('animation');
-// let $featuringContainer=document.getElementById('featuring');
-// let $featuringContainer=document.getElementById('animation');
-// let $home=document.getElementById('home');
-// let $modalTite=$modal.querySelector('h1');
-// let $modalImage=$modal.querySelector('img');
-// let $modalDescription=$modal.querySelector('p');
+  function renderizar(lista, tipo) {
 
-// function videoItemTemplate(src,image) {
-//   return (
-//     `
-//       <div class="featuring">
-//         <div class="featuring-image">
-//           <img src="${src}" width="70" height="100" alt="">
-//         </div>
-//         <div class="featuring-content">
-//           <p class="featuring-title">${image}</p>
-//           <p class="featuring-album"></p>
-//         </div>
-//       </div>
-//       `
-//  )
-// }
-// // console.log(videoItemTemplate('src/images/platzi-video.png','platzi'))
+    videoItemTemplate(lista)
+    createTemplate(HTMLString, tipo);
+
+  }
+  renderizar(actionList, $action)
+  renderizar(dramaList, $drama)
+  renderizar(animationList, $animation)
+  // debugger;
+  //   console.log(data)  // await
+  let $modal = document.getElementById('modal');
+  let $overlay = document.getElementById('overlay');
+  let $hideModal = document.getElementById('hide-modal');
+  // let $animationContainer=document.getElementById('animation');
+ 
+  // let $modalTite=$modal.querySelector('h1');
+  // let $modalImage=$modal.querySelector('img');
+  // let $modalDescription=$modal.querySelector('p');
+
+
+
+  function showModal() {
+    $overlay.classList.add('active');
+    $modal.style.animation = 'modalIn .8s forwards';
+    // style.animation='modalIn .8s forwars'
+  }
+
+  $hideModal.addEventListener('click', removemodal);
+  function removemodal() {
+    $overlay.classList.remove('active');
+    $modal.style.animation = 'modalOut .8s forwards';
+    // alert(ds);  
+  }
+
+
+
+
+
+  // function videoItemTemplate(src,image) {
+  //   return (
+  //     `
+  //       <div class="featuring">
+  //         <div class="featuring-image">
+  //           <img src="${src}" width="70" height="100" alt="">
+  //         </div>
+  //         <div class="featuring-content">
+  //           <p class="featuring-title">${image}</p>
+  //           <p class="featuring-album"></p>
+  //         </div>
+  //       </div>
+  //       `
+  //  )
+  // }
+  // // console.log(videoItemTemplate('src/images/platzi-video.png','platzi'))
 
 
 })()

@@ -227,6 +227,7 @@ body {
   align-items: center;
   padding-left: 100px;
   color: white;
+ /* display: none; */
 }
 
 .featuring-image {
